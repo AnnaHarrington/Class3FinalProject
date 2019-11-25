@@ -1,4 +1,4 @@
-#add data to project
+# 0 add data to project
 library(dplyr)
 download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile = "rawdata.zip")
 unzip(zipfile = "rawdata.zip", exdir = "./rawdata")
@@ -12,7 +12,7 @@ ytrain <- read.table(file.path(ucihardataset, "train", "Y_train.txt"),header = F
 subjecttrain <- read.table(file.path(ucihardataset, "train", "subject_train.txt"),header = FALSE)
 subjecttest  <- read.table(file.path(ucihardataset, "test" , "subject_test.txt"),header = FALSE)
 
-#merge training and test sets
+# 1 merge training and test sets
 # y= activity
 #x= features
 xbind <- rbind(xtrain, xtest)
@@ -28,14 +28,24 @@ merged <- cbind(xybind, subjectbind)
 
 
 
-#extract the measurements on the mean and stdev for each measurement
+# 2 extract the measurements on the mean and stdev for each measurement
 
 meanstdevfeaturenames <-featurenames$V2[grep("mean\\(\\)|std\\(\\)", featurenames$V2)]
 steptwo <-c(as.character(meanstdevfeaturenames), "subject", "activity" )
 mergedstdevmean <-subset(merged,select= steptwo)
 
+# 3 activity names
+mergedstdevmean$activity <- as.character(mergedstdevmean$activity)
+mergedstdevmean$activity[mergedstdevmean$activity == "1"] <- "WALKING"
+mergedstdevmean$activity[mergedstdevmean$activity == "2"] <- "WALKING_UPSTAIRS"
+mergedstdevmean$activity[mergedstdevmean$activity == "3"] <- "WALKING_DOWNSTAIRS"
+mergedstdevmean$activity[mergedstdevmean$activity == "4"] <- "SITTING"
+mergedstdevmean$activity[mergedstdevmean$activity == "5"] <- "STANDING"
+mergedstdevmean$activity[mergedstdevmean$activity == "6"] <- "LAYING"
 
-#label data set with descriptive variable names
+
+
+# 4 label data set with descriptive variable names
 
 #beginning
 names(mergedstdevmean)
@@ -60,7 +70,7 @@ names(mergedstdevmean)
 
 
 
-#create second dataset w average of each activity and subject
+# 5 create second dataset w average of each activity and subject
 
 stepfivedataset <- aggregate(. ~subject + activity, mergedstdevmean, mean)
 stepfivedataset <- stepfivedataset[order(stepfivedataset$subject, stepfivedataset$activity),]
